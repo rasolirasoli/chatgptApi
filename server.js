@@ -14,37 +14,55 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch((error) => console.error('Error connecting to MongoDB Atlas:', error));
 
-// Food model
-const foodSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  price: Number
+// Furniture model
+const furnitureSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: Number, required: true },
+  
 });
 
-const Food = mongoose.model('Food', foodSchema);
+const Furniture = mongoose.model('Furniture', furnitureSchema);
 
 // Routes
 
-// Create a food item
-app.post('/api/food', async (req, res) => {
+// Create a furniture item
+app.post('/api/furniture', async (req, res) => {
   const { name, description, price } = req.body;
-  const newFood = new Food({ name, description, price });
+  const newFurniture = new Furniture({
+    name, description, price
+  });
 
   try {
-    await newFood.save();
-    res.status(201).json({ message: 'Food item created', food: newFood });
+    await newFurniture.save();
+    res.status(201).json({ message: 'Furniture item created', furniture: newFurniture });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating food item', error: error.message });
+    res.status(400).json({ message: 'Error creating furniture item', error: error.message });
   }
 });
 
-// Get all food items
-app.get('/api/food', async (req, res) => {
+// Get all furniture items
+app.get('/api/furniture', async (req, res) => {
   try {
-    const foods = await Food.find();
-    res.status(200).json(foods);
+    const furnitureItems = await Furniture.find();
+    res.status(200).json(furnitureItems);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching food items', error: error.message });
+    res.status(500).json({ message: 'Error fetching furniture items', error: error.message });
+  }
+});
+
+// Get a furniture item by ID
+app.get('/api/furniture/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const furnitureItem = await Furniture.findById(id);
+    if (furnitureItem) {
+      res.status(200).json(furnitureItem);
+    } else {
+      res.status(404).json({ message: 'Furniture item not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching furniture item', error: error.message });
   }
 });
 
